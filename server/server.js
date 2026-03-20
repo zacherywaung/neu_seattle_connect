@@ -17,7 +17,16 @@ app.use('/api/courses', require('./routes/courses'));
 app.use('/api/users',   require('./routes/users'));
 
 // Health check
-app.get('/', (req, res) => res.send('JJEZ API is running'));
+app.get('/', (req, res) => res.send('NEU Seattle Connect API is running'));
+
+// Global error handler — catches any unhandled errors in routes
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'An unexpected error occurred on the server',
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
