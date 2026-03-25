@@ -8,6 +8,7 @@ export default function Login() {
   const [form, setForm]       = useState({ email: '', password: '' });
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,7 +30,7 @@ export default function Login() {
       localStorage.setItem('userName', user.name);
       navigate('/feed');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -67,14 +68,23 @@ export default function Login() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-[#111111] mb-1.5">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Your password"
-                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#C8102E] transition"
-              />
+              <div className="relative">
+                <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="Your password"
+                    className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#C8102E] transition pr-10"
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#555555] hover:text-[#111111]"
+                >
+                    {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
             <button
               type="submit"
