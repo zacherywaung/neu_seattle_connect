@@ -37,7 +37,9 @@ export default function Feed() {
       const url = category ? `/api/posts?category=${category}` : '/api/posts';
       const res = await API.get(url);
       const data = res.data;
-      setPosts(Array.isArray(data) ? data : data.posts || []);
+      console.log('GET response:', data);
+      const list = Array.isArray(data) ? data : data.posts || data.data || [];
+      setPosts(list);
     } catch (err) {
       setError('Failed to load posts.');
     } finally {
@@ -87,16 +89,20 @@ export default function Feed() {
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean);
-      const res = await API.post('/api/posts', {
+      const postRes = await API.post('/api/posts', {
         title: form.title,
         content: form.content,
         category: form.category,
         tags,
         images: form.images,
       });
-      setPosts((prev) => [res.data, ...prev]);
+      console.log('POST response:', postRes.data);
       setForm({ title: '', content: '', category: 'Projects', tags: '', images: [] });
       setShowForm(false);
+      const tab = TABS.find((t) => t.label === activeTab);
+      console.log('Re-fetching with tab:', tab?.label, 'param:', tab?.param);
+      await fetchPosts(tab?.param);
+      console.log('Posts after re-fetch:', posts);
     } catch {
       setError('Failed to create post.');
     } finally {

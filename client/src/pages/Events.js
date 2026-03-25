@@ -28,7 +28,9 @@ export default function Events() {
     try {
       const res = await API.get('/api/posts?category=Events');
       const data = res.data;
-      setPosts(Array.isArray(data) ? data : data.posts || []);
+      console.log('GET response:', data);
+      const list = Array.isArray(data) ? data : data.posts || data.data || [];
+      setPosts(list);
     } catch {
       setError('Failed to load events.');
     } finally {
@@ -77,16 +79,16 @@ export default function Events() {
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean);
-      const res = await API.post('/api/posts', {
+      await API.post('/api/posts', {
         title: form.title,
         content: form.content,
         category: 'Events',
         tags,
         images: form.images,
       });
-      setPosts((prev) => [res.data, ...prev]);
       setForm({ title: '', content: '', tags: '', images: [] });
       setShowForm(false);
+      await fetchPosts();
     } catch {
       setError('Failed to create event.');
     } finally {
