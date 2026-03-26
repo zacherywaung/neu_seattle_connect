@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 // POST /api/posts — requires login
 router.post('/', protect, async (req, res) => {
   try {
-    const { category, title, content, tags } = req.body;
+    const { category, title, content, tags, images } = req.body;
 
     if (!category || !title || !content) {
       return res.status(400).json({ success: false, message: 'Category, title, and content are required' });
@@ -44,6 +44,7 @@ router.post('/', protect, async (req, res) => {
       title,
       content,
       tags: tags || [],
+      images: images || [],
     });
 
     // Populate author info before returning
