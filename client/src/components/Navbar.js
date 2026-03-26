@@ -30,8 +30,8 @@ export default function Navbar() {
         NEU Seattle Connect
       </Link>
 
-      {/* Nav links */}
-      <div className="flex items-center gap-1">
+      {/* Nav links — hidden on mobile */}
+      <div className="hidden sm:flex items-center gap-1">
         <Link to="/feed"    className={linkClass('/feed')}>Feed</Link>
         <Link to="/events"  className={linkClass('/events')}>Events</Link>
         <Link to="/courses" className={linkClass('/courses')}>Courses</Link>
