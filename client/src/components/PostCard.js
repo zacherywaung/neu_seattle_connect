@@ -10,7 +10,7 @@ import CommentSection from './CommentSection';
 //   onUpdate   — callback function called after a post is liked/saved (optional)
 //   isSaved    — whether the current user has saved this post (optional, default false)
 
-export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSaved = false }) {
+export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSaved = false, disableAuthorClick = false }) {
   const navigate      = useNavigate();
   const userId        = localStorage.getItem('userId');
   const token         = localStorage.getItem('token');
@@ -91,8 +91,10 @@ export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSav
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div
-            onClick={() => navigate(`/profile/${post.author?._id}`)}
-            className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-xs font-semibold text-[#C8102E] cursor-pointer flex-shrink-0 overflow-hidden"
+            onClick={() => !disableAuthorClick && navigate(`/profile/${post.author?._id}`)}
+            className={`w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-xs font-semibold text-[#C8102E] flex-shrink-0 overflow-hidden ${
+              disableAuthorClick ? '' : 'cursor-pointer'
+            }`}
           >
             {post.author?.avatar
               ? <img src={post.author.avatar} alt={post.author.name} className="w-full h-full object-cover" />
@@ -102,8 +104,10 @@ export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSav
           {/* Author info */}
           <div>
             <span
-              onClick={() => navigate(`/profile/${post.author?._id}`)}
-              className="text-sm font-semibold text-gray-900 cursor-pointer hover:underline"
+              onClick={() => !disableAuthorClick && navigate(`/profile/${post.author?._id}`)}
+              className={`text-sm font-semibold text-gray-900 ${
+                disableAuthorClick ? '' : 'cursor-pointer hover:underline'
+              }`}
             >
               {post.author?.name}
             </span>
