@@ -13,6 +13,7 @@ export default function CourseDetail() {
   const { code } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const currentUserId = localStorage.getItem('userId');
 
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +67,16 @@ export default function CourseDetail() {
       alert(err.response?.data?.message || 'Failed to post. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (threadId) => {
+    if (!window.confirm('Are you sure you want to delete this insight?')) return;
+    try {
+      await API.delete(`/api/courses/${code}/threads/${threadId}`);
+      setThreads(threads.filter((t) => t._id !== threadId));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete. Please try again.');
     }
   };
 
@@ -277,13 +288,24 @@ export default function CourseDetail() {
                       </p>
                     </div>
                   </div>
-                  <span
-                    className={`text-xs font-medium px-3 py-1 rounded-full ${
-                      workloadStyle[t.workload] || workloadStyle.Medium
-                    }`}
-                  >
-                    {t.workload} workload
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs font-medium px-3 py-1 rounded-full ${
+                        workloadStyle[t.workload] || workloadStyle.Medium
+                      }`}
+                    >
+                      {t.workload} workload
+                    </span>
+                    {currentUserId && t.author?._id === currentUserId && (
+                      <button
+                        onClick={() => handleDelete(t._id)}
+                        className="text-xs text-[#999] hover:text-red-600 transition-colors px-2 py-1"
+                        title="Delete this insight"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Course name */}

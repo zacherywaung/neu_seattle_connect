@@ -65,4 +65,26 @@ router.post('/:code/threads', protect, async (req, res) => {
   }
 });
 
+// DELETE /api/courses/:code/threads/:threadId — delete your own thread, requires login
+router.delete('/:code/threads/:threadId', protect, async (req, res) => {
+  try {
+    const thread = await CourseThread.findById(req.params.threadId);
+
+    if (!thread) {
+      return res.status(404).json({ success: false, message: 'Thread not found' });
+    }
+
+    // Only the author can delete their own thread
+    if (thread.author.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this thread' });
+    }
+
+    await thread.deleteOne();
+    res.json({ success: true, message: 'Thread deleted' });
+  } catch (err) {
+    console.error('Delete thread error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to delete thread' });
+  }
+});
+
 module.exports = router;
