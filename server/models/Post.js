@@ -8,6 +8,7 @@ const PostSchema = new mongoose.Schema({
   images:    { type: [String], default: [] },   // Cloudinary image URLs
   tags:      { type: [String], default: [] },
   reactions: { type: Map, of: [mongoose.Schema.Types.ObjectId], default: {} },
+  signups:   [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 
 // Enable full-text search on title and content

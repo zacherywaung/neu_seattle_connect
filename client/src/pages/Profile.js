@@ -36,12 +36,23 @@ export default function Profile() {
           setUser(me);
           // Fetch own posts via public endpoint
           const postRes = await API.get(`/api/users/${id}`);
-          setPosts(postRes.data.data.posts || []);
+          const rawPosts = postRes.data.data.posts || [];
+          // Inject own user data as author so avatar/name display correctly
+          const authorObj = { _id: me._id, name: me.name, avatar: me.avatar, major: me.major, year: me.year };
+          setPosts(rawPosts.map((p) => ({
+            ...p,
+            author: (p.author && typeof p.author === 'object') ? p.author : authorObj,
+          })));
         } else {
           const res = await API.get(`/api/users/${id}`);
           const { posts: p, ...rest } = res.data.data;
           setUser(rest);
-          setPosts(p || []);
+          // Inject user data as author for unpopulated posts
+          const authorObj = { _id: rest._id, name: rest.name, avatar: rest.avatar, major: rest.major, year: rest.year };
+          setPosts((p || []).map((post) => ({
+            ...post,
+            author: (post.author && typeof post.author === 'object') ? post.author : authorObj,
+          })));
         }
       } catch (err) {
         setError('Failed to load profile. Please try again later.');
@@ -342,6 +353,7 @@ export default function Profile() {
                     post={p}
                     onDelete={isOwn ? handleDeletePost : undefined}
                     onUpdate={isOwn ? handleUpdatePost : undefined}
+                    disableAuthorClick={true}
                   />
                 ))}
               </div>
@@ -361,7 +373,7 @@ export default function Profile() {
             ) : (
               <div className="space-y-4">
                 {saved.map((p) => (
-                  <PostCard key={p._id || p} post={p} />
+                  <PostCard key={p._id || p} post={p} isSaved={true} disableAuthorClick={true} />
                 ))}
               </div>
             )}

@@ -1,5 +1,6 @@
 const express     = require('express');
 const Post        = require('../models/Post');
+const Notification   = require('../models/Notification');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -14,7 +15,8 @@ router.get('/', async (req, res) => {
     if (req.query.tag)      filter.tags = req.query.tag;
 
     const posts = await Post.find(filter)
-      .populate('author', 'name major year')
+      .populate('author', 'name avatar major year')
+      .populate('signups', 'name avatar major')
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: posts });
@@ -48,7 +50,7 @@ router.post('/', protect, async (req, res) => {
     });
 
     // Populate author info before returning
-    await post.populate('author', 'name major year');
+    await post.populate('author', 'name avatar major year');
 
     res.status(201).json({ success: true, data: post });
   } catch (err) {
@@ -79,11 +81,70 @@ router.patch('/:id/react', protect, async (req, res) => {
 
     post.reactions.set(type, updated);
     await post.save();
+    await post.populate('author', 'name avatar major');
+
+    // Create notification if liking (not unliking) and not own post
+    const isLiking = !users.map(id => id.toString()).includes(uid);
+    if (isLiking && post.author.toString() !== uid) {
+      await Notification.create({
+        recipient: post.author,
+        sender: uid,
+        type: 'like',
+        post: post._id,
+      });
+    }
 
     res.json({ success: true, data: post });
   } catch (err) {
     console.error('React to post error:', err.message);
     res.status(500).json({ success: false, message: 'Failed to update reaction' });
+  }
+});
+
+// PATCH /api/posts/:id/signup — toggle signup for Events/Projects, requires login
+router.patch('/:id/signup', protect, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    // Only Events and Projects support signups
+    if (!['Events', 'Projects'].includes(post.category)) {
+      return res.status(400).json({ success: false, message: 'Signups are only available for Events and Projects' });
+    }
+
+    const uid = req.user.id;
+    const alreadySignedUp = post.signups.map(id => id.toString()).includes(uid);
+
+    if (alreadySignedUp) {
+      // Cancel signup
+      post.signups = post.signups.filter(id => id.toString() !== uid);
+    } else {
+      // Sign up
+      post.signups.push(uid);
+
+      // Notify the post author (only on signup, not on cancel)
+      if (post.author.toString() !== uid) {
+        await Notification.create({
+          recipient: post.author,
+          sender: uid,
+          type: 'signup',
+          post: post._id,
+        });
+      }
+    }
+
+    await post.save();
+
+    // Populate signups with name and avatar so frontend can display the list
+    await post.populate('signups', 'name avatar major');
+    await post.populate('author', 'name avatar major year');
+
+    res.json({ success: true, signedUp: !alreadySignedUp, data: post });
+  } catch (err) {
+    console.error('Signup error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to update signup' });
   }
 });
 
