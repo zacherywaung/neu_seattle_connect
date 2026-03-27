@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
 export default function Landing() {
   const navigate = useNavigate();
+
+  // If already logged in, skip landing and go straight to Feed
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/feed', { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
