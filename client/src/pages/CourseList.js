@@ -25,18 +25,15 @@ export default function CourseList() {
     fetchCourses();
   }, []);
 
-  // Handle "Go" button — navigate directly to course detail
   const handleGo = (e) => {
     e.preventDefault();
     const code = search.trim().toUpperCase();
-    if (code) {
-      navigate(`/courses/${code}`);
-    }
+    if (code) navigate(`/courses/${code}`);
   };
 
-  // Filter displayed course cards
-  const filtered = courses.filter((code) =>
-    code.toLowerCase().includes(filter.toLowerCase())
+  const filtered = courses.filter((c) =>
+    c.code.toLowerCase().includes(filter.toLowerCase()) ||
+    c.name.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
@@ -54,35 +51,30 @@ export default function CourseList() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Search + Go: jump directly to a course */}
+        {/* Search + Go */}
         <form onSubmit={handleGo} className="flex gap-3 mb-4">
           <input
             type="text"
             placeholder="Enter course code (e.g. CS5800)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-3 border border-[#e5e5e5] rounded-lg bg-white
-                       text-[#111111] placeholder-[#999] focus:outline-none
-                       focus:border-[#C8102E] focus:ring-1 focus:ring-[#C8102E]"
+            className="flex-1 px-4 py-3 border border-[#e5e5e5] rounded-lg bg-white text-[#111111] placeholder-[#999] focus:outline-none focus:border-[#C8102E] focus:ring-1 focus:ring-[#C8102E]"
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-[#C8102E] text-white font-semibold rounded-lg
-                       hover:bg-[#a00d24] transition-colors"
+            className="px-6 py-3 bg-[#C8102E] text-white font-semibold rounded-lg hover:bg-[#a00d24] transition-colors"
           >
             Go
           </button>
         </form>
 
-        {/* Filter existing courses */}
+        {/* Filter */}
         <input
           type="text"
           placeholder="Filter listed courses..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full px-4 py-3 border border-[#e5e5e5] rounded-lg bg-white mb-6
-                     text-[#111111] placeholder-[#999] focus:outline-none
-                     focus:border-[#C8102E] focus:ring-1 focus:ring-[#C8102E]"
+          className="w-full px-4 py-3 border border-[#e5e5e5] rounded-lg bg-white mb-6 text-[#111111] placeholder-[#999] focus:outline-none focus:border-[#C8102E] focus:ring-1 focus:ring-[#C8102E]"
         />
 
         {/* Loading */}
@@ -108,9 +100,7 @@ export default function CourseList() {
               {filter ? 'No courses match your filter' : 'No courses yet'}
             </h3>
             <p className="text-[#555555]">
-              {filter
-                ? 'Try a different keyword'
-                : 'Be the first to share a course insight! Use the search bar above to go to a course page.'}
+              {filter ? 'Try a different keyword' : 'Be the first to share a course insight!'}
             </p>
           </div>
         )}
@@ -118,21 +108,20 @@ export default function CourseList() {
         {/* Course grid */}
         {!loading && !error && filtered.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {filtered.map((code) => (
+            {filtered.map((c) => (
               <button
-                key={code}
-                onClick={() => navigate(`/courses/${code}`)}
-                className="bg-white border border-[#e5e5e5] rounded-lg p-6 text-left
-                           hover:border-[#C8102E] hover:shadow-md transition-all
-                           group cursor-pointer"
+                key={c.code}
+                onClick={() => navigate(`/courses/${c.code}`)}
+                className="bg-white border border-[#e5e5e5] rounded-lg p-6 text-left hover:border-[#C8102E] hover:shadow-md transition-all group cursor-pointer"
               >
                 <p className="text-xs font-medium text-[#C8102E] uppercase tracking-wide mb-1">
-                  Course
+                  {c.category}
                 </p>
                 <h2 className="text-xl font-bold text-[#111111] group-hover:text-[#C8102E] transition-colors">
-                  {code}
+                  {c.code}
                 </h2>
-                <p className="text-sm text-[#555555] mt-2">View insights →</p>
+                <p className="text-sm text-[#555555] mt-1">{c.name}</p>
+                <p className="text-sm text-[#999] mt-3">View insights →</p>
               </button>
             ))}
           </div>

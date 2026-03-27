@@ -1,5 +1,6 @@
 const express      = require('express');
 const CourseThread = require('../models/CourseThread');
+const Course       = require('../models/Course');
 const { protect }  = require('../middleware/auth');
 
 const router = express.Router();
@@ -7,7 +8,7 @@ const router = express.Router();
 // GET /api/courses — returns all unique course codes that have threads
 router.get('/', async (req, res) => {
   try {
-    const courses = await CourseThread.distinct('courseCode');
+    const courses = await Course.find().sort({ code: 1 });
     res.json({ success: true, data: courses });
   } catch (err) {
     console.error('Get courses error:', err.message);
