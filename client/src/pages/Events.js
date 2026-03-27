@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import PostCard from '../components/PostCard';
 
 export default function Events() {
-  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);

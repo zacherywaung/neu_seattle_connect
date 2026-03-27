@@ -11,7 +11,6 @@ const TABS = [
 ];
 
 export default function Feed() {
-  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
