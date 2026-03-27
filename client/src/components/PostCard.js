@@ -8,15 +8,20 @@ import CommentSection from './CommentSection';
 //   post       — the post object from the backend
 //   onDelete   — callback function called after a post is deleted (optional)
 //   onUpdate   — callback function called after a post is liked/saved (optional)
+//   isSaved    — whether the current user has saved this post (optional, default false)
 
-export default function PostCard({ post, onDelete, onUpdate }) {
+export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSaved = false }) {
   const navigate      = useNavigate();
   const userId        = localStorage.getItem('userId');
   const token         = localStorage.getItem('token');
   const isOwnPost     = userId && post.author?._id === userId;
   const [showComments, setShowComments] = useState(false);
 
-  // Check if the current user already liked this post
+  // Save state
+  const [saved, setSaved] = useState(initialSaved);
+  const [saveAnim, setSaveAnim] = useState(false);
+
+  // Like state
   const likeList  = post.reactions?.like || [];
   const isLiked   = likeList.map(id => id.toString()).includes(userId);
   const likeCount = likeList.length;
@@ -41,7 +46,12 @@ export default function PostCard({ post, onDelete, onUpdate }) {
   const handleSave = async () => {
     if (!token) { navigate('/login'); return; }
     try {
-      await API.post(`/api/users/me/save/${post._id}`);
+      const res = await API.post(`/api/users/me/save/${post._id}`);
+      const nowSaved = res.data.saved;
+      setSaved(nowSaved);
+      // Trigger animation
+      setSaveAnim(true);
+      setTimeout(() => setSaveAnim(false), 400);
     } catch (err) {
       console.error('Save failed:', err);
     }
@@ -153,12 +163,17 @@ export default function PostCard({ post, onDelete, onUpdate }) {
           💬 Comment
         </button>
 
-        {/* Save */}
+        {/* Save / Unsave with animation */}
         <button
           onClick={handleSave}
-          className="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-gray-700"
+          className={`flex items-center gap-1 text-xs font-medium transition-all duration-200 ${
+            saved
+              ? 'text-[#C8102E]'
+              : 'text-gray-400 hover:text-gray-700'
+          } ${saveAnim ? 'scale-125' : 'scale-100'}`}
+          style={{ transform: saveAnim ? 'scale(1.25)' : 'scale(1)', transition: 'transform 0.2s ease, color 0.2s ease' }}
         >
-          🔖 Save
+          {saved ? '🔖' : '📑'} {saved ? 'Saved' : 'Save'}
         </button>
 
         {/* Delete (own posts only) */}
