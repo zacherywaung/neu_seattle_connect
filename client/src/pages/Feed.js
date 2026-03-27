@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import API from '../api';
 import Navbar from '../components/Navbar';
 import PostCard from '../components/PostCard';
