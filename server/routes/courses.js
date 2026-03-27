@@ -20,7 +20,7 @@ router.get('/:code/threads', async (req, res) => {
   try {
     const courseCode = req.params.code.toUpperCase();
     const threads = await CourseThread.find({ courseCode })
-      .populate('author', 'name major year')
+      .populate('author', 'name avatar major year')
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: threads });
@@ -56,7 +56,7 @@ router.post('/:code/threads', protect, async (req, res) => {
       takeaway,
     });
 
-    await thread.populate('author', 'name major year');
+    await thread.populate('author', 'name avatar major year');
 
     res.status(201).json({ success: true, data: thread });
   } catch (err) {

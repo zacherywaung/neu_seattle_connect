@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api';
 import CommentSection from './CommentSection';
 
-// PostCard — displays a single post with like, save, comment, and delete actions
+// PostCard — displays a single post with like, save, comment, signup, and delete actions
 // Props:
-//   post       — the post object from the backend
-//   onDelete   — callback function called after a post is deleted (optional)
-//   onUpdate   — callback function called after a post is liked/saved (optional)
-//   isSaved    — whether the current user has saved this post (optional, default false)
+//   post               — the post object from the backend
+//   onDelete           — callback after post is deleted (optional)
+//   onUpdate           — callback after post is liked/saved/signup (optional)
+//   isSaved            — whether the current user has saved this post (optional)
+//   disableAuthorClick — disable clicking on avatar/name (optional)
 
 export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSaved = false, disableAuthorClick = false }) {
   const navigate      = useNavigate();
@@ -16,10 +17,20 @@ export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSav
   const token         = localStorage.getItem('token');
   const isOwnPost     = userId && post.author?._id === userId;
   const [showComments, setShowComments] = useState(false);
+  const [showSignups, setShowSignups] = useState(false);
 
   // Save state
   const [saved, setSaved] = useState(initialSaved);
   const [saveAnim, setSaveAnim] = useState(false);
+
+  // Signup state
+  const signupList = post.signups || [];
+  const [signups, setSignups] = useState(signupList);
+  const [signupAnim, setSignupAnim] = useState(false);
+  const isSignedUp = signups.some(
+    (u) => (typeof u === 'object' ? u._id : u) === userId
+  );
+  const hasSignup = post.category === 'Events' || post.category === 'Projects';
 
   // Like state
   const likeList  = post.reactions?.like || [];
@@ -49,11 +60,23 @@ export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSav
       const res = await API.post(`/api/users/me/save/${post._id}`);
       const nowSaved = res.data.saved;
       setSaved(nowSaved);
-      // Trigger animation
       setSaveAnim(true);
       setTimeout(() => setSaveAnim(false), 400);
     } catch (err) {
       console.error('Save failed:', err);
+    }
+  };
+
+  const handleSignup = async () => {
+    if (!token) { navigate('/login'); return; }
+    try {
+      const res = await API.patch(`/api/posts/${post._id}/signup`);
+      setSignups(res.data.data.signups || []);
+      setSignupAnim(true);
+      setTimeout(() => setSignupAnim(false), 400);
+      if (onUpdate) onUpdate(res.data.data);
+    } catch (err) {
+      console.error('Signup failed:', err);
     }
   };
 
@@ -147,6 +170,75 @@ export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSav
         </div>
       )}
 
+      {/* Signup section — only for Events and Projects */}
+      {hasSignup && (
+        <div className="mb-3 p-3 rounded-lg bg-[#f8f8f8] border border-[#e5e5e5]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-[#111111]">
+                {post.category === 'Events' ? '📋 Signups' : '🤝 Members'}
+              </span>
+              <span className="text-xs text-[#555555] bg-white px-2 py-0.5 rounded-full border border-[#e5e5e5]">
+                {signups.length} {signups.length === 1 ? 'person' : 'people'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Toggle signup list */}
+              {signups.length > 0 && (
+                <button
+                  onClick={() => setShowSignups(!showSignups)}
+                  className="text-xs text-[#555555] hover:text-[#111111] transition-colors"
+                >
+                  {showSignups ? 'Hide list' : 'View list'}
+                </button>
+              )}
+              {/* Signup / Cancel button — don't show on own post */}
+              {!isOwnPost && (
+                <button
+                  onClick={handleSignup}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                    isSignedUp
+                      ? 'bg-white border border-[#e5e5e5] text-[#555555] hover:border-red-300 hover:text-red-600'
+                      : 'bg-[#C8102E] text-white hover:bg-[#a00d24]'
+                  } ${signupAnim ? 'scale-110' : 'scale-100'}`}
+                  style={{ transition: 'transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease' }}
+                >
+                  {isSignedUp
+                    ? (post.category === 'Events' ? 'Cancel signup' : 'Leave')
+                    : (post.category === 'Events' ? 'Sign up' : 'Join')
+                  }
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Signup list */}
+          {showSignups && signups.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-[#e5e5e5] space-y-2">
+              {signups.map((u, i) => {
+                const user = typeof u === 'object' ? u : { _id: u, name: 'User' };
+                const userInitial = user.name?.charAt(0)?.toUpperCase() || '?';
+                return (
+                  <div key={user._id || i} className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-[#C8102E] text-white flex items-center justify-center text-xs font-bold overflow-hidden">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        userInitial
+                      )}
+                    </div>
+                    <span className="text-sm text-[#111111]">{user.name}</span>
+                    {user.major && (
+                      <span className="text-xs text-[#555555]">· {user.major}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Action row */}
       <div className="flex items-center gap-4 pt-3 border-t border-gray-100">
         {/* Like */}
@@ -174,7 +266,7 @@ export default function PostCard({ post, onDelete, onUpdate, isSaved: initialSav
             saved
               ? 'text-[#C8102E]'
               : 'text-gray-400 hover:text-gray-700'
-          } ${saveAnim ? 'scale-125' : 'scale-100'}`}
+          }`}
           style={{ transform: saveAnim ? 'scale(1.25)' : 'scale(1)', transition: 'transform 0.2s ease, color 0.2s ease' }}
         >
           {saved ? '🔖' : '📑'} {saved ? 'Saved' : 'Save'}
