@@ -10,7 +10,22 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const courses = await Course.find().sort({ code: 1 });
-    res.json({ success: true, data: courses });
+
+    const workloadMap = { Light: 1, Medium: 2, Heavy: 3 };
+    const reverseMap = (avg) => {
+      if (avg <= 1.5) return 'Light';
+      if (avg <= 2.5) return 'Medium';
+      return 'Heavy';
+    };
+
+    const coursesWithStats = await Promise.all(courses.map(async (c) => {
+      const threads = await CourseThread.find({ courseCode: c.code });
+      if (threads.length === 0) return { ...c.toObject(), workload: null, threadCount: 0 };
+      const avg = threads.reduce((sum, t) => sum + (workloadMap[t.workload] || 2), 0) / threads.length;
+      return { ...c.toObject(), workload: reverseMap(avg), threadCount: threads.length };
+    }));
+
+    res.json({ success: true, data: coursesWithStats });
   } catch (err) {
     console.error('Get courses error:', err.message);
     res.status(500).json({ success: false, message: 'Failed to fetch courses' });
@@ -37,6 +52,12 @@ router.post('/:code/threads', protect, async (req, res) => {
   try {
     const { courseName, learningStyle, workload, careerRelevance, takeaway } = req.body;
     const courseCode = req.params.code.toUpperCase();
+
+    // Verify course exists in catalog
+    const courseExists = await Course.findOne({ code: courseCode });
+    if (!courseExists) {
+      return res.status(404).json({ success: false, message: 'Course not found in catalog' });
+    }
 
     if (!takeaway) {
       return res.status(400).json({ success: false, message: 'Key takeaway is required' });
