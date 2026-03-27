@@ -361,7 +361,7 @@ export default function Profile() {
             ) : (
               <div className="space-y-4">
                 {saved.map((p) => (
-                  <PostCard key={p._id || p} post={p} />
+                  <PostCard key={p._id || p} post={p} isSaved={true} />
                 ))}
               </div>
             )}
