@@ -81,6 +81,7 @@ router.patch('/:id/react', protect, async (req, res) => {
 
     post.reactions.set(type, updated);
     await post.save();
+    await post.populate('author', 'name avatar major');
 
     // Create notification if liking (not unliking) and not own post
     const isLiking = !users.map(id => id.toString()).includes(uid);

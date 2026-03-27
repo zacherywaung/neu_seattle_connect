@@ -89,7 +89,7 @@ export default function Navbar() {
                   )}
                 </button>
                 {showNotif && (
-                  <div className="absolute right-0 top-10 w-72 bg-white rounded-xl shadow-lg border border-[#e5e5e5] z-50 overflow-hidden">
+                  <div className="absolute right-0 top-10 w-72 bg-white rounded-xl shadow-lg border border-[#e5e5e5] z-50 overflow-hidden max-w-[calc(100vw-16px)]">
                     <div className="px-4 py-3 border-b border-[#e5e5e5]">
                       <p className="text-sm font-semibold text-[#111111]">Notifications</p>
                     </div>

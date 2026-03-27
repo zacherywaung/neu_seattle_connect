@@ -12,61 +12,71 @@ export default function Landing() {
       <Navbar />
 
       {/* Hero section */}
-      <div className="bg-[#C8102E] px-6 py-20 text-center">
-        <span className="inline-block bg-white bg-opacity-20 text-white text-xs font-medium px-4 py-1.5 rounded-full mb-6 border border-white border-opacity-30">
-          Now open — NEU Seattle students only
-        </span>
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-          {isLoggedIn ? (
-            <>Welcome back{userName ? `, ${userName}` : ''}!</>
-          ) : (
-            <>Your campus,<br /><span className="text-white text-opacity-75">finally connected.</span></>
-          )}
-        </h1>
-        <p className="text-white text-opacity-75 text-base max-w-xl mx-auto mb-8 leading-relaxed">
-          {isLoggedIn
-            ? 'Jump back into your campus community — check new posts, explore events, or share course insights.'
-            : 'Find study partners, discover events, read honest course insights, and connect with classmates — all in one place built for NEU Seattle.'
-          }
-        </p>
-        <div className="flex gap-3 justify-center flex-wrap">
-          {isLoggedIn ? (
-            <>
-              <button
-                onClick={() => navigate('/feed')}
-                className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
-              >
-                Go to Feed
-              </button>
-              <button
-                onClick={() => navigate('/events')}
-                className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
-              >
-                Browse Events
-              </button>
-              <button
-                onClick={() => navigate('/courses')}
-                className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
-              >
-                Course Insights
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => navigate('/register')}
-                className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
-              >
-                Sign up with NEU email
-              </button>
-              <button
-                onClick={() => navigate('/feed')}
-                className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
-              >
-                Browse as guest
-              </button>
-            </>
-          )}
+      <div
+        className="relative px-6 py-20 text-center"
+        style={{
+          backgroundImage: 'url(https://res.cloudinary.com/dfljvp36r/image/upload/v1774639580/Screenshot_2026-03-27_at_12.24.45_PM_o2hxkz.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-[#C8102E] opacity-80"></div>
+        <div className="relative z-10">
+          <span className="inline-block bg-white bg-opacity-20 text-white text-xs font-medium px-4 py-1.5 rounded-full mb-6 border border-white border-opacity-30">
+            Now open — NEU Seattle students only
+          </span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+            {isLoggedIn ? (
+              <>Welcome back{userName ? `, ${userName}` : ''}!</>
+            ) : (
+              <>Your campus,<br /><span className="text-white text-opacity-75">finally connected.</span></>
+            )}
+          </h1>
+          <p className="text-white text-opacity-75 text-base max-w-xl mx-auto mb-8 leading-relaxed">
+            {isLoggedIn
+              ? 'Jump back into your campus community — check new posts, explore events, or share course insights.'
+              : 'Find study partners, discover events, read honest course insights, and connect with classmates — all in one place built for NEU Seattle.'
+            }
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            {isLoggedIn ? (
+              <>
+                <button
+                  onClick={() => navigate('/feed')}
+                  className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+                >
+                  Go to Feed
+                </button>
+                <button
+                  onClick={() => navigate('/events')}
+                  className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
+                >
+                  Browse Events
+                </button>
+                <button
+                  onClick={() => navigate('/courses')}
+                  className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
+                >
+                  Course Insights
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+                >
+                  Sign up with NEU email
+                </button>
+                <button
+                  onClick={() => navigate('/feed')}
+                  className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
+                >
+                  Browse as guest
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -99,7 +109,7 @@ export default function Landing() {
             },
             {
               title: 'Course insights',
-              desc: 'Real talk from students on workload, teaching style, and career relevance. No star ratings.',
+              desc: 'Real talk from students on workload, teaching style, and career relevance. AI-powered summaries.',
             },
             {
               title: 'Search',
@@ -110,7 +120,7 @@ export default function Landing() {
               desc: 'Build your campus identity with your major, interests, bio, and the posts you\'ve shared.',
             },
           ].map((f) => (
-            <div key={f.title} className="border border-[#e5e5e5] rounded-xl p-5">
+            <div key={f.title} className="border border-[#e5e5e5] rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <p className="font-semibold text-[#111111] text-sm mb-2">{f.title}</p>
               <p className="text-[#555555] text-xs leading-relaxed">{f.desc}</p>
             </div>
