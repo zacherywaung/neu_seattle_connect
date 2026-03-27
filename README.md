@@ -20,7 +20,7 @@ We built NEU Seattle Connect to give students ownership over their own campus cu
 Post events, projects, and general updates. Like, comment, save, and upload images. Filter by category to find what you're looking for.
 
 **Course Insights**
-Honest student takes on workload, teaching style, and career relevance — structured discussion, not star ratings.
+Honest student takes on workload, teaching style, and career relevance — structured discussion, not star ratings. Once a course has enough reviews, an **AI-generated summary** automatically synthesises the collective experience into a concise at-a-glance snapshot, so students can make informed decisions without reading every post.
 
 **User Profiles**
 Showcase your major, year, interests, and bio. See posts from any student on their profile page.
@@ -89,6 +89,7 @@ flowchart TD
 | Database | MongoDB Atlas |
 | Auth | JWT, bcrypt |
 | Image storage | Cloudinary |
+| AI | Anthropic Claude API (Haiku) |
 | Deployment | Vercel (frontend), Render (backend) |
 
 ---
