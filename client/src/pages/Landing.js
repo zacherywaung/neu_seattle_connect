@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('token');
+  const userName = localStorage.getItem('userName');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -15,25 +17,56 @@ export default function Landing() {
           Now open — NEU Seattle students only
         </span>
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-          Your campus,<br />
-          <span className="text-white text-opacity-75">finally connected.</span>
+          {isLoggedIn ? (
+            <>Welcome back{userName ? `, ${userName}` : ''}!</>
+          ) : (
+            <>Your campus,<br /><span className="text-white text-opacity-75">finally connected.</span></>
+          )}
         </h1>
         <p className="text-white text-opacity-75 text-base max-w-xl mx-auto mb-8 leading-relaxed">
-          Find study partners, discover events, read honest course insights, and connect with classmates — all in one place built for NEU Seattle.
+          {isLoggedIn
+            ? 'Jump back into your campus community — check new posts, explore events, or share course insights.'
+            : 'Find study partners, discover events, read honest course insights, and connect with classmates — all in one place built for NEU Seattle.'
+          }
         </p>
         <div className="flex gap-3 justify-center flex-wrap">
-          <button
-            onClick={() => navigate('/register')}
-            className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
-          >
-            Sign up with NEU email
-          </button>
-          <button
-            onClick={() => navigate('/feed')}
-            className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
-          >
-            Browse as guest
-          </button>
+          {isLoggedIn ? (
+            <>
+              <button
+                onClick={() => navigate('/feed')}
+                className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+              >
+                Go to Feed
+              </button>
+              <button
+                onClick={() => navigate('/events')}
+                className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
+              >
+                Browse Events
+              </button>
+              <button
+                onClick={() => navigate('/courses')}
+                className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
+              >
+                Course Insights
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/register')}
+                className="bg-white text-[#C8102E] font-semibold text-sm px-6 py-3 rounded-lg hover:bg-opacity-90 transition"
+              >
+                Sign up with NEU email
+              </button>
+              <button
+                onClick={() => navigate('/feed')}
+                className="bg-transparent text-white font-medium text-sm px-6 py-3 rounded-lg border-2 border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition"
+              >
+                Browse as guest
+              </button>
+            </>
+          )}
         </div>
       </div>
 

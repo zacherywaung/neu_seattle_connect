@@ -1,5 +1,6 @@
 const express     = require('express');
 const Comment     = require('../models/Comment');
+const Notification   = require('../models/Notification');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -48,6 +49,19 @@ router.post('/:postId', protect, async (req, res) => {
     });
 
     await comment.populate('author', 'name avatar major year');
+
+    // Create notification for post author (if not commenting on own post)
+    const Post = require('../models/Post');
+    const post = await Post.findById(req.params.postId);
+    if (post && post.author.toString() !== req.user.id) {
+      await Notification.create({
+        recipient: post.author,
+        sender: req.user.id,
+        type: 'comment',
+        post: post._id,
+      });
+    }
+    
     res.status(201).json({ success: true, data: { ...comment.toObject(), replies: [] } });
   } catch (err) {
     console.error('Create comment error:', err.message);
