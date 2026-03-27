@@ -1,5 +1,6 @@
 const express     = require('express');
 const Post        = require('../models/Post');
+const Notification   = require('../models/Notification');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -79,6 +80,17 @@ router.patch('/:id/react', protect, async (req, res) => {
 
     post.reactions.set(type, updated);
     await post.save();
+
+    // Create notification if liking (not unliking) and not own post
+    const isLiking = !users.map(id => id.toString()).includes(uid);
+    if (isLiking && post.author.toString() !== uid) {
+      await Notification.create({
+        recipient: post.author,
+        sender: uid,
+        type: 'like',
+        post: post._id,
+      });
+    }
 
     res.json({ success: true, data: post });
   } catch (err) {
