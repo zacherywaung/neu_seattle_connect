@@ -20,6 +20,8 @@ const ProtectedRoute = ({ children }) => {
 
 export default function App() {
   return (
+    
+    
     <BrowserRouter>
       <Routes>
         {/* Public routes — anyone can visit */}
@@ -40,5 +42,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    
   );
 }
